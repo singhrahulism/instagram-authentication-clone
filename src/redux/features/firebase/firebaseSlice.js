@@ -1,11 +1,10 @@
-import React, { useRef } from 'react'
+import React, { useRef, forwardRef } from 'react'
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import firebaseAuth from "../../../firebase/firebase";
 import { FirebaseRecaptchaVerifierModal, FirebaseRecaptchaBanner } from 'expo-firebase-recaptcha';
 import firebaseConfig from '../../../firebase/firebaseConfig';
 import { getAuth, PhoneAuthProvider, signInWithCredential } from 'firebase/auth';
 
-const recaptchaVerifier = useRef(null);
 const initialState = {
     error: {
         errorOccured: true,
@@ -15,10 +14,9 @@ const initialState = {
     phoneAuth: {
         verificationId: ''
     }
-
 }
 
-export const signUpEmail = createAsyncThunk('firebase/signUpEmail', async({email, password}) => {
+export const signUpEmail = createAsyncThunk('firebase/signUpEmail', async({email, password, capRef}) => {
     try
     {
         const auth = firebaseAuth.getAuth()
@@ -36,42 +34,10 @@ export const signUpEmail = createAsyncThunk('firebase/signUpEmail', async({email
     }
 })
 
-export const signUpPhoneNumber = createAsyncThunk('firebase/signUpPhoneNumber', async({phoneNumber}) => {
-    console.log(' --> Inside this shit...');
-    <FirebaseRecaptchaVerifierModal
-        ref={recaptchaVerifier}
-        firebaseConfig={firebaseConfig}
-    />
-    try
-    {
-        const auth = firebaseAuth.getAuth()
-        const phoneProvider = new PhoneAuthProvider(auth)
-        const verificationId = await phoneProvider.verifyPhoneNumber(
-            phoneNumber,
-            recaptchaVerifier.current
-        )
-        console.log({verificationId});
-        return verificationId
-    }
-    catch(err)
-    {
-        console.log('--- firebase error start ---');
-        console.log(err.message)
-        console.log('--- firebase error end ---');
-    }
-})
-
-export const signUpPhoneNumberVerify = createAsyncThunk('firebase/signUpPhoneNumberVerify', async({verificatinoCode}) => {
-    try
-    {
-        const auth = firebaseAuth.getAuth()
-        const credential = PhoneAuthProvider.credential(initialState.phoneAuth.verificationId, verificatinoCode)
-        await signInWithCredential(auth, credential)
-    }
-    catch(err)
-    {
-        alert(err.message)
-    }
+export const signUpPhoneNumberVerify = createAsyncThunk('firebase/signUpPhoneNumberVerify', async({verificationId, otp}) => {
+    const auth = firebaseAuth.getAuth()
+    const credential = PhoneAuthProvider.credential(verificationId, otp)
+    await signInWithCredential(auth, credential)
 })
 
 
@@ -79,7 +45,9 @@ const firebaseSlice = createSlice({
     name: 'firebase',
     initialState,
     reducers: {
-        
+        updateVerificationId: (state, action) => {
+            state.phoneAuth.verificationId = action.payload.verificationId
+        }
     },
     extraReducers(builder) {
         builder
@@ -97,19 +65,19 @@ const firebaseSlice = createSlice({
             .addCase(signUpEmail.rejected, () => {
                 console.log(' --> rejected');
             })
-            .addCase(signUpPhoneNumber.pending, () => {
-                console.log(' --> inside signUpPhone pending');
+            .addCase(signUpPhoneNumberVerify.pending, () => {
+                console.log(' --> pending');
             })
-            .addCase(signUpPhoneNumber.fulfilled, (state, action) => {
-                console.log(' --> inside signUpPhone fulfilled');
-                state.phoneAuth.verificationId = action.payload
+            .addCase(signUpPhoneNumberVerify.fulfilled, () => {
+                console.log(' --> SignedIn successful.');
             })
-            .addCase(signUpPhoneNumber.rejected, () => {
-                console.log(' --> inside signUpPhone rejected');
+            .addCase(signUpPhoneNumberVerify.rejected, () => {
+                console.log(' --> SignedIn Unsuccessful');
             })
+
     }
 })
 
-export const { SIGN_UP_EMAIL, SIGN_UP_EMAIL_VERIFICATION } = firebaseSlice.actions
+export const { updateVerificationId } = firebaseSlice.actions
 
 export default firebaseSlice.reducer

@@ -21,7 +21,7 @@ const WelcomeScreen = () => {
         />
         <View style={{height: 70}} />
         <PrimaryButton text={'Create New Account'} handlePress={() => navigation.navigate('SignupPhone')} allowed={true} />
-        <SecondaryButton handlePress={() => navigation.navigate('Login')} />
+        <SecondaryButton handlePress={() => navigation.navigate('LoginEmail')} />
     </View>
 }
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Text, View, StatusBar, StyleSheet, Image, TouchableOpacity } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 
 import PrimaryButton from '../../components/buttons/PrimaryButton'
 import UserPhoneEmailField from '../../components/fields/Login/UserPhoneEmailField'
@@ -9,12 +10,14 @@ import NewSignUp from '../../components/footers/auth/NewSignUp'
 import AlertModal from '../../components/modals/AlertModal'
 
 import LoginWithFacebook from '../../components/loginMethods/LoginWithFacebook'
+import SecondaryButton from '../../components/buttons/SecondaryButton'
 
-const LoginScreen = () => {
+const LoginEmailScreen = () => {
 
     const [userPhoneEmail, setUserPhoneEmail] = useState('')
     const [password, setPassword] = useState('')
     const [isModalVisible, setIsModalVisible] = useState(false)
+    const navigation = useNavigation()
 
     const handleUserPhoneEmailField = (updatedText) => {
         setUserPhoneEmail(updatedText)
@@ -45,8 +48,11 @@ const LoginScreen = () => {
             value={password}
         />
         <PrimaryButton text={'Log In'} />
-
-        <View style={{flexDirection: 'row', marginVertical: 15}}>
+        <SecondaryButton
+            text={'Login using Phone Number instead'}
+            handlePress={() => navigation.navigate('LoginPhone')}
+        />
+        <View style={{flexDirection: 'row', marginBottom: 15}}>
             <Text style={{color: '#a2a2a2', fontSize: 12}} >Forgotten your login details?&nbsp;</Text>
             <AlertModal
                 title={'Unsupported Feature'}
@@ -102,4 +108,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default LoginScreen ;
+export default LoginEmailScreen ;

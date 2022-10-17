@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Text, View, StyleSheet, StatusBar, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
+import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
+import firebaseAuth from '../../firebase/firebase';
 
 import { signUpPhoneNumber } from '../../redux/features/firebase/firebaseSlice'
 import { CHANGE_LOADING } from '../../redux/features/loadingSlice';
@@ -11,25 +13,28 @@ import AlreadyLogIn from '../../components/footers/auth/AlreadyLogIn';
 import PrimaryButton from '../../components/buttons/PrimaryButton';
 import PhoneNumberField from '../../components/fields/PhoneNumberField';
 
+import PhoneNumberVerify from '../../components/redux/PhoneNumberVerify';
+
 const SignupScreenPhone = () => {
 
     const [phoneNumber, setPhoneNumber] = useState('')
     const [isValid, setIsValid] = useState(true)
-    
+    const [isPressed, setIsPressed] = useState(false)
+
     const navigation = useNavigation()
     const dispatch = useDispatch()
 
     const isLoading = useSelector(state => state.loading.value)
+    const verificationId = useSelector(state => state.firebaseStore.phoneAuth.verificationId)
 
     const handlePhoneNumberInput = ( number ) => {
-        setIsValid(true)
         if(number.length <= 10 && ( number === '' || /^(0|[1-9][0-9]*)$/.test(number)))
         {
             setPhoneNumber(number)
         }
     }
 
-    const handlePress = () => {
+    const handlePress = async () => {
         if(phoneNumber.length != 10)
         {
             setIsValid(false)
@@ -37,19 +42,21 @@ const SignupScreenPhone = () => {
         else
         {
             setIsValid(true)
-            // alert('Phone number is valid')
-            console.log('--> Accessing signUpPhoneNumber()');
-            dispatch(CHANGE_LOADING(true))
-            dispatch(signUpPhoneNumber({phoneNumber}))
-            .then(() => {
-                console.log('dispatching change_loading');
-                dispatch(CHANGE_LOADING(false))
-            })
+            setIsPressed(true)
         }
-        // console.log(isValid);
     }
 
+    useEffect(() => {
+        if(verificationId)
+        {
+            console.log('Verification ID Change detected in SignUpScreenPhone');
+            console.log(`Verification ID: ${verificationId}`);
+            navigation.navigate('OTPVerification', { phoneNumber: phoneNumber })
+        }
+    }, [verificationId])
+
     return <View style={styles.container}>
+        <PhoneNumberVerify phoneNumber={phoneNumber} isPressed={isPressed} />
         <StatusBar
             barStyle="light-content"
             hidden={false}

@@ -13,7 +13,7 @@ const AlreadyLogIn = () => {
             </Text>
             <TouchableOpacity
                 activeOpacity={0.65}
-                onPress={() => navigation.navigate('Login')}
+                onPress={() => navigation.navigate('LoginEmail')}
             >
                 <Text style={{color: '#dbe8f4', fontSize: 12}}>Log in.</Text>
             </TouchableOpacity>
