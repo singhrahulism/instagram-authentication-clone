@@ -1,20 +1,23 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from "@react-navigation/native"
 
-export default function App() {
+import { AppStack, AuthStack } from "./stack"
+import { Provider } from "react-redux"
+import store from "./src/redux/store"
+
+const isSignedIn = false
+
+const App = () => {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+  <NavigationContainer>
+    { isSignedIn ? <AppStack /> : <AuthStack /> }
+  </NavigationContainer>
+  )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default () => {
+  return (
+    <Provider store={store} >
+      <App />
+    </Provider>
+  )
+}
