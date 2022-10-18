@@ -4,50 +4,78 @@ import { useNavigation } from '@react-navigation/native'
 
 import PrimaryButton from '../../components/buttons/PrimaryButton'
 import UserPhoneEmailField from '../../components/fields/Login/UserPhoneEmailField'
-import PasswordField from '../../components/fields/Login/PasswordField'
 
 import NewSignUp from '../../components/footers/auth/NewSignUp'
 import AlertModal from '../../components/modals/AlertModal'
 
 import LoginWithFacebook from '../../components/loginMethods/LoginWithFacebook'
 import SecondaryButton from '../../components/buttons/SecondaryButton'
+import PhoneNumberVerify from '../../components/redux/PhoneNumberVerify'
+import PhoneNumberField from '../../components/fields/PhoneNumberField'
 
 const LoginPhoneScreen = () => {
 
-    const [userPhoneEmail, setUserPhoneEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const [phoneNumber, setPhoneNumber] = useState('')
     const [isModalVisible, setIsModalVisible] = useState(false)
+    const [isPressed, setIsPressed] = useState(false)
+    const [isValid, setIsValid] = useState(true)
+
     const navigation = useNavigation()
 
-    const handleUserPhoneEmailField = (updatedText) => {
-        setUserPhoneEmail(updatedText)
-    }
-
-    const handlePassword = (updatedPass) => {
-        setPassword(updatedPass)
+    const handlePhoneNumber = (number) => {
+        setIsValid(true)
+        if(isPressed)
+        {
+            setIsPressed(false)
+        }
+        if(number.length <= 10 && ( number === '' || /^(0|[0-9][0-9]*)$/.test(number)))
+        {
+            setPhoneNumber(number)
+        }
     }
 
     const handleModalPress = () => {
         setIsModalVisible(isModalVisible ? false : true)
     }
+
+    const handlePress = () => {
+        if(phoneNumber.length != 10)
+        {
+            setIsValid(false)
+        }
+        else
+        {
+            alert('Phone number is okay.')
+            // setIsPressed(true)
+            // dispatch(CHANGE_LOADING(true))
+        }
+    }
     
     return <View style={styles.container}>
+        {/* <PhoneNumberVerify
+            
+        /> */}
         <Image
             source={require('../../../assets/logo/mainLogo.png')}
             style={styles.imageContainer}
         />
         <View style={{height: 25}} />
-        <UserPhoneEmailField
-            onInputChange={(updatedText) => handleUserPhoneEmailField(updatedText)}
-            placeHolderText={'Phone number, email address or username'}
-            value={userPhoneEmail}
-            />
-        <PasswordField
-            onInputChange={(updatedPass) => handlePassword(updatedPass)}
-            placeHolderText={'Password'}
-            value={password}
+        <PhoneNumberField
+            onInputChange={number => handlePhoneNumber(number)}
+            value={phoneNumber}
+            validity={isValid}
         />
-        <PrimaryButton text={'Log In'} />
+        <View style={{height: 10}} />
+        {
+            isValid
+            ?   null
+            :   <Text style={{color: 'red', alignSelf: 'flex-start', fontSize: 12, marginTop: 4}}>Invalid Parameters</Text>
+        }
+        <PrimaryButton
+            text={'Log In'}
+            allowed={phoneNumber}
+            handlePress={handlePress}
+        />
         <SecondaryButton
             text={'Login using Email instead'}
             handlePress={() => navigation.navigate('LoginEmail')}

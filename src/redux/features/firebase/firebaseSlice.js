@@ -1,9 +1,6 @@
-import React, { useRef, forwardRef } from 'react'
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import firebaseAuth from "../../../firebase/firebase";
-import { FirebaseRecaptchaVerifierModal, FirebaseRecaptchaBanner } from 'expo-firebase-recaptcha';
-import firebaseConfig from '../../../firebase/firebaseConfig';
-import { getAuth, PhoneAuthProvider, signInWithCredential, signInWithCustomToken } from 'firebase/auth';
+import { PhoneAuthProvider, signInWithCredential } from 'firebase/auth';
 
 const initialState = {
     error: {
@@ -34,14 +31,27 @@ export const signUpPhoneNumberVerify = createAsyncThunk('firebase/signUpPhoneNum
     try
     {
         const auth = firebaseAuth.getAuth()
-        const credential = PhoneAuthProvider.credential(verificationId, otp)
-        const response = await signInWithCredential(auth, credential)
+        const userCredential = PhoneAuthProvider.credential(verificationId, otp)
+        const response = await signInWithCredential(auth, userCredential)
         return response
     } catch (err) {
         return {errorCode: err.code}
     }
 })
 
+export const logInEmail = createAsyncThunk('firebase/logInEmail', async({email, password}) => {
+    try
+    {
+        console.log('--> logging in using email & password');
+        const auth = firebaseAuth.getAuth()
+        const userCredential = await firebaseAuth.signInWithEmailAndPassword(auth, email, password)
+        return {user: userCredential.user}
+    }
+    catch(err)
+    {
+        return {errorCode: err.code}
+    }
+})
 
 const firebaseSlice = createSlice({
     name: 'firebase',
@@ -108,6 +118,27 @@ const firebaseSlice = createSlice({
             .addCase(signUpPhoneNumberVerify.rejected, (state, action) => {
                 console.log(' --> SignedIn Unsuccessful');
                 console.log(action.payload);
+            })
+            .addCase(logInEmail.fulfilled, (state, action) => {
+                console.log(' --> logInEmail fulfilled');
+                if(action.payload.errorCode)
+                {
+                    console.log(action.payload.errorCode);
+                    switch(action.payload.errorCode)
+                    {
+                        case 'auth/wrong-password':
+                            state.error.errorBody = 'Incorrect Password. Please try again.'
+                            break ;
+                        case 'auth/user-not-found':
+                            state.error.errorBody = 'Email address is not registered with us. Please try again with a different email address.'
+                            break ;
+                    }
+                }
+                if(action.payload.user)
+                {
+                    console.log(' * Signed in successful');
+                    state.user = action.payload.user
+                }
             })
 
     }

@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Text, View, StatusBar, StyleSheet, Image, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 
 import PrimaryButton from '../../components/buttons/PrimaryButton'
-import UserPhoneEmailField from '../../components/fields/Login/UserPhoneEmailField'
+import EmailField from '../../components/fields/EmailField'
 import PasswordField from '../../components/fields/Login/PasswordField'
 
 import NewSignUp from '../../components/footers/auth/NewSignUp'
@@ -12,58 +12,120 @@ import AlertModal from '../../components/modals/AlertModal'
 import LoginWithFacebook from '../../components/loginMethods/LoginWithFacebook'
 import SecondaryButton from '../../components/buttons/SecondaryButton'
 
+import { logInEmail, updateErrorMessage } from '../../redux/features/firebase/firebaseSlice'
+import { CHANGE_LOADING } from '../../redux/features/loadingSlice';
+import { useDispatch, useSelector } from 'react-redux'
+
 const LoginEmailScreen = () => {
 
-    const [userPhoneEmail, setUserPhoneEmail] = useState('')
+    const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [isValid, setIsValid] = useState(true)
     const [isModalVisible, setIsModalVisible] = useState(false)
+
     const navigation = useNavigation()
+    const dispatch = useDispatch()
 
-    const handleUserPhoneEmailField = (updatedText) => {
-        setUserPhoneEmail(updatedText)
+    const isLoading = useSelector(state => state.loading.value)
+    const errorMessage = useSelector(state => state.firebaseStore.error.errorBody)
+
+    const handleEmailInput = (mail) => {
+        setIsValid(true)
+        setEmail(mail)
     }
 
-    const handlePassword = (updatedPass) => {
-        setPassword(updatedPass)
+    const handlePassword = (pass) => {
+        setPassword(pass)
     }
 
-    const handleModalPress = () => {
-        setIsModalVisible(isModalVisible ? false : true)
+    const handleIsModalVisible = () => {
+        if(isModalVisible)
+        {
+            setIsModalVisible(false)
+            dispatch(updateErrorMessage(''))
+        }
+        else
+        {
+            setIsModalVisible(true)
+        }
     }
+
+    const handlePress = ( mail ) => {
+        let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+
+        if(reg.test(mail) === true)
+        {
+            setIsValid(true)
+            setEmail(mail)
+            dispatch(CHANGE_LOADING(true))
+            dispatch(updateErrorMessage(''))
+            dispatch(logInEmail({email, password}))
+            .then(() => {
+                dispatch(CHANGE_LOADING(false))
+            })
+        } else {
+            setIsValid(false)
+        }
+    }
+
+    useEffect(() => {
+        if(errorMessage)
+        {
+            setIsModalVisible(true)
+        }
+    }, [errorMessage])
     
     return <View style={styles.container}>
+        <AlertModal
+            title={'Error'}
+            message={errorMessage}
+            modalVisible={isModalVisible}
+            requestClose={handleIsModalVisible}
+        />
         <Image
             source={require('../../../assets/logo/mainLogo.png')}
             style={styles.imageContainer}
         />
         <View style={{height: 25}} />
-        <UserPhoneEmailField
-            onInputChange={(updatedText) => handleUserPhoneEmailField(updatedText)}
-            placeHolderText={'Phone number, email address or username'}
-            value={userPhoneEmail}
-            />
+        <EmailField
+            onInputChange={mail => handleEmailInput(mail)}
+            value={email}
+            validity={isValid}
+        />
+        {
+            isValid
+            ?   null
+            :   <Text style={{color: 'red', alignSelf: 'flex-start', fontSize: 12, marginTop: -7, marginBottom: 10}}>
+                Please enter a valid email address.
+                </Text>
+        }
         <PasswordField
-            onInputChange={(updatedPass) => handlePassword(updatedPass)}
+            onInputChange={updatedPass => handlePassword(updatedPass)}
             placeHolderText={'Password'}
             value={password}
         />
-        <PrimaryButton text={'Log In'} />
+        <PrimaryButton
+            text={'Next'}
+            handlePress={() => {
+                email && password.length >= 6
+                ? handlePress(email)
+                : null
+            }}
+            allowed={ email && password.length >= 6 ? true : false }
+            useIndicator={isLoading}
+        />
         <SecondaryButton
             text={'Login using Phone Number instead'}
             handlePress={() => navigation.navigate('LoginPhone')}
         />
         <View style={{flexDirection: 'row', marginBottom: 15}}>
             <Text style={{color: '#a2a2a2', fontSize: 12}} >Forgotten your login details?&nbsp;</Text>
-            <AlertModal
-                title={'Unsupported Feature'}
-                message={'Sorry, currently this feature is not supported.'}
-                modalVisible={isModalVisible}
-                requestClose={() => setIsModalVisible(false)}
-            />
             <TouchableOpacity
                 activeOpacity={0.65}
                 // onPress={() => alert('Currently, this feature is NOT supported.')}
-                onPress={handleModalPress}
+                onPress={() => {
+                    dispatch(updateErrorMessage('Sorry. Currently this feature is NOT supported.'))
+                }}
             >
                 <Text style={{color: 'white', fontWeight: 'bold', fontSize: 12}} >Get help with logging in.</Text>
             </TouchableOpacity>
