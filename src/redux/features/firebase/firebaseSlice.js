@@ -22,16 +22,11 @@ export const signUpEmail = createAsyncThunk('firebase/signUpEmail', async({email
     {
         const auth = firebaseAuth.getAuth()
         const userCredential = await firebaseAuth.createUserWithEmailAndPassword(auth, email, password)
-        console.log('Status OK');
-        return userCredential.user
+        return {user: userCredential.user}
     }
     catch(err)
     {
-        if(err.code === 'auth/email-already-in-use')
-        {
-            return 'EMAIL_ALREADY_IN_USE'
-        }
-        console.log('Status NOT OK');
+        return {errorCode: err.code}
     }
 })
 
@@ -62,21 +57,27 @@ const firebaseSlice = createSlice({
     extraReducers(builder) {
         builder
             .addCase(signUpEmail.fulfilled, (state, action) => {
-                console.log(' --> fulfilled');
-                switch(action.payload)
+                console.log(' --> signUpEmail fulfilled');
+                console.log(action);
+                if(action.payload.errorCode)
                 {
-                    case 'EMAIL_ALREADY_IN_USE':
-                        console.log('--> changing state');
-                        state.error = { errorOccured: true, errorMain: 'E-Mail Already in use', errorBody: 'Please use a different Email account' }
-                    default :
-                        state.error = { errorOccured: false, errorMain: '', errorBody: ''}
+                    switch(action.payload.errorCode)
+                    {
+                        case 'auth/email-already-in-use':
+                            state.error.errorBody = 'Email already in use. Please use a different email address'
+                            break ;
+                    }
+                }
+                if(action.payload.user)
+                {
+                    state.user = action.payload.user
                 }
             })
             .addCase(signUpEmail.rejected, () => {
-                console.log(' --> rejected');
+                console.log(' --> signUpEmail rejected');
             })
             .addCase(signUpPhoneNumberVerify.pending, () => {
-                console.log(' --> pending');
+                console.log(' --> signUpEmail pending');
             })
             .addCase(signUpPhoneNumberVerify.fulfilled, (state, action) => {
                 console.log(' --> singupPhoneNumberVerify fulfilled.');
@@ -85,10 +86,12 @@ const firebaseSlice = createSlice({
                 {
                     switch(action.payload.errorCode)
                     {
-                        case 'auth/invalid-verification-code': state.error.errorBody = 'Incorrect verification code entered.'
-                        break
-                        case 'auth/code-expired': state.error.errorBody = 'Verification Code expired. Request a new one.'
-                        break
+                        case 'auth/invalid-verification-code':
+                            state.error.errorBody = 'Incorrect verification code entered.'
+                            break
+                        case 'auth/code-expired':
+                            state.error.errorBody = 'Verification Code expired. Request a new one.'
+                            break
                     }
                 }
                 if(action.payload._tokenResponse)

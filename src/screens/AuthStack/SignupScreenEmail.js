@@ -1,9 +1,9 @@
-import React, { useDeferredValue, useEffect, useState } from 'react'
-import { Text, View, StyleSheet, StatusBar, TouchableOpacity, LogBox } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { Text, View, StyleSheet, StatusBar, TouchableOpacity, LogBox, Alert } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 
-import { SIGN_UP_EMAIL, signUpEmail } from '../../redux/features/firebase/firebaseSlice'
+import { signUpEmail, updateErrorMessage } from '../../redux/features/firebase/firebaseSlice'
 import { CHANGE_LOADING } from '../../redux/features/loadingSlice';
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -13,18 +13,18 @@ import EmailField from '../../components/fields/EmailField';
 import PasswordField from '../../components/fields/Login/PasswordField';
 import AlertModal from '../../components/modals/AlertModal';
 
-
 const SignupScreenEmail = () => {
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [isValid, setIsValid] = useState(true)
+    const [isModalVisible, setIsModalVisible] = useState(false)
     
     const navigation = useNavigation()
     const dispatch = useDispatch()
 
     const isLoading = useSelector(state => state.loading.value)
-    const signUpStatus = useSelector(state => state.firebaseStore.error.errorOccured)
+    const errorMessage = useSelector(state => state.firebaseStore.error.errorBody)
 
     const handleEmailInput = (mail) => {
         setIsValid(true)
@@ -34,6 +34,19 @@ const SignupScreenEmail = () => {
     const handlePassword = (pass) => {
         setPassword(pass)
     }
+
+    const handleIsModalVisible = () => {
+        if(isModalVisible)
+        {
+            setIsModalVisible(false)
+            dispatch(updateErrorMessage(''))
+        }
+        else
+        {
+            setIsModalVisible(true)
+        }
+    }
+
     const handlePress = ( mail ) => {
         let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
 
@@ -42,9 +55,9 @@ const SignupScreenEmail = () => {
             setIsValid(true)
             setEmail(mail)
             dispatch(CHANGE_LOADING(true))
+            dispatch(updateErrorMessage(''))
             dispatch(signUpEmail({email, password}))
             .then(() => {
-                console.log('dispatching change_loading');
                 dispatch(CHANGE_LOADING(false))
             })
         } else {
@@ -53,22 +66,19 @@ const SignupScreenEmail = () => {
     }
 
     useEffect(() => {
-        console.log(`signUpStatus: ${signUpStatus}`);
-    })
-
-    // useEffect(() => {
-    //     console.log('here');
-    //     {
-    //         errorOccured === false &&
-    //         <AlertModal
-    //             title={errorMain}
-    //             message={errorBody}
-    //             modalVisible={true}
-    //         />
-    //     }
-    // }, [errorOccured])
+        if(errorMessage)
+        {
+            setIsModalVisible(true)
+        }
+    }, [errorMessage])
 
     return <View style={styles.container}>
+        <AlertModal
+            title={'Error'}
+            message={errorMessage}
+            modalVisible={isModalVisible}
+            requestClose={handleIsModalVisible}
+        />
         <StatusBar
             barStyle="light-content"
             hidden={false}

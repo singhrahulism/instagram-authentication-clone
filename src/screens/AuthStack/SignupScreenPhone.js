@@ -2,10 +2,6 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Text, View, StyleSheet, StatusBar, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
-import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
-import firebaseAuth from '../../firebase/firebase';
-
-import { signUpPhoneNumber } from '../../redux/features/firebase/firebaseSlice'
 import { CHANGE_LOADING } from '../../redux/features/loadingSlice';
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -54,8 +50,6 @@ const SignupScreenPhone = () => {
     useEffect(() => {
         if(verificationId)
         {
-            console.log('Verification ID Change detected in SignUpScreenPhone');
-            console.log(`Verification ID: ${verificationId}`);
             dispatch(CHANGE_LOADING(false))
             setIsPressed(false)
             navigation.navigate('OTPVerification', { phoneNumber: phoneNumber })
