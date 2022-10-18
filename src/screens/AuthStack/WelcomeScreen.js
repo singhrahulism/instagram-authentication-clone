@@ -8,7 +8,6 @@ import SecondaryButton from '../../components/buttons/SecondaryButton'
 const WelcomeScreen = () => {
 
     const navigation = useNavigation()
-
     return <View style={styles.container}>
         <StatusBar
             barStyle="light-content"

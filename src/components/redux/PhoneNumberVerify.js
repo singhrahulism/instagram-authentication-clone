@@ -5,26 +5,41 @@ import firebaseAuth from '../../firebase/firebase';
 import firebaseConfig from '../../firebase/firebaseConfig';
 import { useDispatch } from 'react-redux';
 import { updateVerificationId } from '../../redux/features/firebase/firebaseSlice';
+import { CHANGE_LOADING } from '../../redux/features/loadingSlice';
+import AlertModal from '../modals/AlertModal';
 
 const PhoneNumberVerify = ({ phoneNumber, isPressed }) => {
 
     const recaptchaRef = useRef(null)
     const [verificationId, setVerificationId] = useState('')
+    const [isModalVisible, setIsModalVisible] = useState(false)
+    const [errorMessage, setErrorMessage] = useState('')
 
     const dispatch = useDispatch()
+
     const handlePress = async() => {
-        // console.log('-> Check PNV 1');
-        const validPhoneNumber = '+91'+phoneNumber
-        const auth = firebaseAuth.getAuth()
-        // console.log('-> Check PNV 2');
-        const phoneProvider = new firebaseAuth.PhoneAuthProvider(auth);
-        // console.log('-> Check PNV 3');
-        const newVerificationId = await phoneProvider.verifyPhoneNumber(
-            validPhoneNumber,
-            recaptchaRef.current
-            );
-        setVerificationId(newVerificationId)
-        // console.log('-> Check PNV 4');
+        try
+        {
+            setErrorMessage('')
+            const auth = firebaseAuth.getAuth()
+            const validPhoneNumber = '+91'+phoneNumber
+            const phoneProvider = new firebaseAuth.PhoneAuthProvider(auth);
+            const newVerificationId = await phoneProvider.verifyPhoneNumber(
+                validPhoneNumber,
+                recaptchaRef.current
+                );
+            setVerificationId(newVerificationId)
+        } catch(err) {
+            setIsModalVisible(true)
+            switch(err.code)
+            {
+                case 'auth/too-many-requests': setErrorMessage('Too many signup attempts. Please try again after sometime.')
+                break ;
+            }
+            console.log(err);
+            console.log(err.code);
+        }
+        dispatch(CHANGE_LOADING(false))
     }
     
     useEffect(() => {
@@ -48,6 +63,12 @@ const PhoneNumberVerify = ({ phoneNumber, isPressed }) => {
         <FirebaseRecaptchaVerifierModal
                 ref={recaptchaRef}
                 firebaseConfig={firebaseConfig}
+        />
+        <AlertModal
+            title={'Error'}
+            message={errorMessage}
+            modalVisible={isModalVisible}
+            requestClose={() => setIsModalVisible(false)}
         />
     </View>
 }

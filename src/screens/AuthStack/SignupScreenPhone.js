@@ -28,6 +28,10 @@ const SignupScreenPhone = () => {
     const verificationId = useSelector(state => state.firebaseStore.phoneAuth.verificationId)
 
     const handlePhoneNumberInput = ( number ) => {
+        if(isPressed)
+        {
+            setIsPressed(false)
+        }
         if(number.length <= 10 && ( number === '' || /^(0|[1-9][0-9]*)$/.test(number)))
         {
             setPhoneNumber(number)
@@ -43,14 +47,17 @@ const SignupScreenPhone = () => {
         {
             setIsValid(true)
             setIsPressed(true)
+            dispatch(CHANGE_LOADING(true))
         }
     }
-
+    
     useEffect(() => {
         if(verificationId)
         {
             console.log('Verification ID Change detected in SignUpScreenPhone');
             console.log(`Verification ID: ${verificationId}`);
+            dispatch(CHANGE_LOADING(false))
+            setIsPressed(false)
             navigation.navigate('OTPVerification', { phoneNumber: phoneNumber })
         }
     }, [verificationId])
