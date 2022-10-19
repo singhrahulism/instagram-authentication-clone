@@ -1,5 +1,5 @@
 import React from 'react'
-import { Text, View, StyleSheet, TextInput } from 'react-native'
+import { View, StyleSheet, TextInput } from 'react-native'
 
 const EmailField = ({ onInputChange, value, validity }) => {
     return <View style={{...styles.container, borderColor: validity ? null : 'red', borderWidth: validity ? null : 2}}>

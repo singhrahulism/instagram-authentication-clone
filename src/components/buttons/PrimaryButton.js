@@ -1,5 +1,5 @@
 import React from 'react'
-import { Text, View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native'
 
 const PrimaryButton = ({ handlePress, text, allowed, useIndicator }) => {
     return <TouchableOpacity

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Text, View, StyleSheet, TouchableOpacity, Alert } from 'react-native'
+import { Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { FontAwesome5 } from '@expo/vector-icons';
 
 import AlertModal from '../modals/AlertModal'

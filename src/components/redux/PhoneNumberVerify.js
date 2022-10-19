@@ -43,8 +43,6 @@ const PhoneNumberVerify = ({ phoneNumber, isPressed }) => {
     }
     
     useEffect(() => {
-        // console.log(`phoneNumberLength: ${phoneNumber.length}`);
-        // console.log(`isPressed: ${isPressed}`);
         if(phoneNumber.length === 10 && isPressed === true)
         {
             handlePress()

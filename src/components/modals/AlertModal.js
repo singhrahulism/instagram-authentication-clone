@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Text, View, StyleSheet, TouchableOpacity, Dimensions, Modal } from 'react-native'
 
 const AlertModal = ({ title, message, modalVisible, handlePress, requestClose }) => {

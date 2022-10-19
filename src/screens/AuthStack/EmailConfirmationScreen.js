@@ -4,7 +4,6 @@ import { Text, View, StatusBar, StyleSheet } from 'react-native'
 import { SIGN_UP_EMAIL, SIGN_UP_EMAIL_VERIFICATION } from '../../redux/features/firebase/firebaseSlice'
 import { useDispatch } from 'react-redux'
 
-import GeneralField from '../../components/fields/GeneralField'
 import PrimaryButton from '../../components/buttons/PrimaryButton'
 import SecondaryButton from '../../components/buttons/SecondaryButton'
 

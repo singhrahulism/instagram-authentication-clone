@@ -97,7 +97,6 @@ const LoginPhoneScreen = () => {
             <Text style={{color: '#a2a2a2', fontSize: 12}} >Forgotten your login details?&nbsp;</Text>
             <TouchableOpacity
                 activeOpacity={0.65}
-                // onPress={() => alert('Currently, this feature is NOT supported.')}
                 onPress={handleModalPress}
             >
                 <Text style={{color: 'white', fontWeight: 'bold', fontSize: 12}} >Get help with logging in.</Text>

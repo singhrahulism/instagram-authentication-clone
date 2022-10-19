@@ -10,8 +10,6 @@ import SignupScreenEmail from "./src/screens/AuthStack/SignupScreenEmail";
 import EmailConfirmationScreen from "./src/screens/AuthStack/EmailConfirmationScreen";
 import OTPVerificationScreen from "./src/screens/AuthStack/OTPVerificationScreen";
 
-import TestScreen from "./src/screens/AuthStack/TestScreen";
-
 const Stack = createNativeStackNavigator()
 
 export const AppStack = () => {
@@ -27,7 +25,6 @@ export const AuthStack = () => {
         <Stack.Navigator>
             <Stack.Screen name="Welcome" component={WelcomeScreen} options={{headerShown: false, animation: 'none'}} />
             <Stack.Screen name="OTPVerification" component={OTPVerificationScreen} options={{headerShown: false, animation: 'none'}} />
-            <Stack.Screen name="Test" component={TestScreen} options={{headerShown: false, animation: 'none'}} />
             <Stack.Screen name="LoginEmail" component={LoginEmailScreen} options={{headerShown: false, animation: 'none'}} />
             <Stack.Screen name="LoginPhone" component={LoginPhoneScreen} options={{headerShown: false, animation: 'none'}} />
             <Stack.Screen name="SignupPhone" component={SignupScreenPhone} options={{headerShown: false, animation: 'none'}} />

@@ -122,7 +122,6 @@ const LoginEmailScreen = () => {
             <Text style={{color: '#a2a2a2', fontSize: 12}} >Forgotten your login details?&nbsp;</Text>
             <TouchableOpacity
                 activeOpacity={0.65}
-                // onPress={() => alert('Currently, this feature is NOT supported.')}
                 onPress={() => {
                     dispatch(updateErrorMessage('Sorry. Currently this feature is NOT supported.'))
                 }}

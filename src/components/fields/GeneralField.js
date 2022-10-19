@@ -1,5 +1,5 @@
 import React from 'react'
-import { Text, View, StyleSheet, TextInput } from 'react-native'
+import { View, StyleSheet, TextInput } from 'react-native'
 
 const GeneralField = ({ onInputChange, placeHolderText, keyboardType, value }) => {
     return <View style={styles.container}>

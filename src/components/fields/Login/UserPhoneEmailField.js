@@ -1,5 +1,5 @@
 import React from 'react'
-import { Text, View, StyleSheet, TextInput } from 'react-native'
+import { View, StyleSheet, TextInput } from 'react-native'
 
 const UserPhoneEmailField = ({ onInputChange, placeHolderText, value }) => {
     return <View style={styles.container}>
