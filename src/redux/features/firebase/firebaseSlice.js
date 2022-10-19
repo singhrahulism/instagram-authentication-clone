@@ -65,6 +65,11 @@ export const logInEmail = createAsyncThunk('firebase/logInEmail', async({email, 
     }
 })
 
+export const signOutUser = createAsyncThunk('firebase/signOutUser', async() => {
+    const auth = firebaseAuth.getAuth()
+    await firebaseAuth.signOut(auth)
+})
+
 const firebaseSlice = createSlice({
     name: 'firebase',
     initialState,
@@ -183,6 +188,13 @@ const firebaseSlice = createSlice({
                             break
                     }
                 }
+            })
+            .addCase(signOutUser.fulfilled, (state) => {
+                console.log(' -> singOutUser fulfilled')
+                state.user = {}
+            })
+            .addCase(signOutUser.rejected, (state) => {
+                state.error.errorBody = 'Error occured. Please try again after sometime.'
             })
     }
 })
