@@ -52,7 +52,7 @@ const SignupScreenPhone = () => {
         {
             dispatch(CHANGE_LOADING(false))
             setIsPressed(false)
-            navigation.navigate('OTPVerification', { phoneNumber: phoneNumber })
+            navigation.navigate('OTPVerification', { phoneNumber: phoneNumber, actionType: 'signup' })
         }
     }, [verificationId])
 

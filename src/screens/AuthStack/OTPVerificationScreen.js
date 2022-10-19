@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { Text, View, StyleSheet, StatusBar } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 import GeneralField from '../../../src/components/fields/GeneralField'
 import PrimaryButton from '../../components/buttons/PrimaryButton'
 import AlreadyLogIn from '../../components/footers/auth/AlreadyLogIn'
 import { useDispatch, useSelector } from 'react-redux'
-import { signUpPhoneNumberVerify, updateErrorMessage, updateVerificationId } from '../../redux/features/firebase/firebaseSlice'
+import { signUpPhoneNumberVerify, logInPhoneNumberVerify, updateErrorMessage, updateVerificationId } from '../../redux/features/firebase/firebaseSlice'
 import { CHANGE_LOADING } from '../../redux/features/loadingSlice'
 import AlertModal from '../../components/modals/AlertModal'
 
 const OTPVerificationScreen = ({route}) => {
 
     const phoneNumber = route.params.phoneNumber
+    const actionType = route.params.actionType
     const [otp, setOtp] = useState('')
     const [isModalVisible, setIsModalVisible] = useState(false)
     const dispatch = useDispatch()
@@ -19,9 +21,10 @@ const OTPVerificationScreen = ({route}) => {
     const [verificationId, setVerificationId] = useState(vid)
     
     const isLoading = useSelector(state => state.loading.value)
+    const navigation = useNavigation()
 
     const handleOtp = (newOtp) => {
-        if(newOtp.length <= 6 && ( newOtp === '' || /^(0|[1-9][0-9]*)$/.test(newOtp)))
+        if(newOtp.length <= 6 && ( newOtp === '' || /[0-9]/.test(newOtp)))
         {
             setOtp(newOtp)
         }
@@ -31,12 +34,27 @@ const OTPVerificationScreen = ({route}) => {
         dispatch(CHANGE_LOADING(true))
         try
         {
-            dispatch(signUpPhoneNumberVerify({verificationId, otp}))
-            .then(() => {
-                dispatch(CHANGE_LOADING(false))
-            })
+            console.log(' -> Inside try');
+            console.log({actionType});
+            switch(actionType)
+            {
+                case 'login':
+                    console.log(' -> Logging in using phone number');
+                    dispatch(logInPhoneNumberVerify({verificationId, otp}))
+                    .then(() => {
+                        dispatch(CHANGE_LOADING(false))
+                    })
+                    break
+                case 'signup':
+                    console.log(' -> signing up using phone number');
+                    dispatch(signUpPhoneNumberVerify({verificationId, otp}))
+                    .then(() => {
+                        dispatch(CHANGE_LOADING(false))
+                    })
+                    break
+            }
         } catch(err) {
-            alert(err.message)
+            console.log({err});
         }
     }
 
@@ -51,13 +69,13 @@ const OTPVerificationScreen = ({route}) => {
     //     console.log({otp});
     // }, [otp])
 
-    useEffect(() => {
-        if(errorMessage)
-        {
-            setIsModalVisible(true)
-            console.log(errorMessage);
-        }
-    }, [errorMessage])
+    // useEffect(() => {
+    //     if(errorMessage)
+    //     {
+    //         setIsModalVisible(true)
+    //         console.log(errorMessage);
+    //     }
+    // }, [errorMessage])
 
     useEffect(() => {
     if(isModalVisible === false)

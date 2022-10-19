@@ -1,6 +1,9 @@
-import React, { useState } from 'react'
-import { Text, View, StatusBar, StyleSheet, Image, TouchableOpacity } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { Text, View, StatusBar, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
+import { useDispatch, useSelector } from 'react-redux'
+
+import { CHANGE_LOADING } from '../../redux/features/loadingSlice'
 
 import PrimaryButton from '../../components/buttons/PrimaryButton'
 import UserPhoneEmailField from '../../components/fields/Login/UserPhoneEmailField'
@@ -20,16 +23,20 @@ const LoginPhoneScreen = () => {
     const [isPressed, setIsPressed] = useState(false)
     const [isValid, setIsValid] = useState(true)
 
+    const dispatch = useDispatch()
     const navigation = useNavigation()
 
+    const isLoading = useSelector(state => state.loading.value)
+    const verificationId = useSelector(state => state.firebaseStore.phoneAuth.verificationId)
+
     const handlePhoneNumber = (number) => {
-        setIsValid(true)
         if(isPressed)
         {
             setIsPressed(false)
         }
         if(number.length <= 10 && ( number === '' || /^(0|[0-9][0-9]*)$/.test(number)))
         {
+            setIsValid(true)
             setPhoneNumber(number)
         }
     }
@@ -45,16 +52,29 @@ const LoginPhoneScreen = () => {
         }
         else
         {
-            alert('Phone number is okay.')
-            // setIsPressed(true)
-            // dispatch(CHANGE_LOADING(true))
+            setIsPressed(true)
+            dispatch(CHANGE_LOADING(true))
         }
     }
-    
+
+    useEffect(() => {
+        if(verificationId)
+        {
+            dispatch(CHANGE_LOADING(false))
+            setIsPressed(false)
+            // console.log({verificationId});
+            navigation.navigate('OTPVerification', { phoneNumber: phoneNumber, actionType: 'login' })
+        }
+    }, [verificationId])
+
     return <View style={styles.container}>
-        {/* <PhoneNumberVerify
-            
-        /> */}
+        <AlertModal
+            title={'Error'}
+            message={errorMessage}
+            modalVisible={isModalVisible}
+            requestClose={() => setIsModalVisible(false)}
+        />
+        <PhoneNumberVerify phoneNumber={phoneNumber} isPressed={isPressed} />
         <Image
             source={require('../../../assets/logo/mainLogo.png')}
             style={styles.imageContainer}
@@ -65,16 +85,17 @@ const LoginPhoneScreen = () => {
             value={phoneNumber}
             validity={isValid}
         />
-        <View style={{height: 10}} />
         {
             isValid
             ?   null
             :   <Text style={{color: 'red', alignSelf: 'flex-start', fontSize: 12, marginTop: 4}}>Invalid Parameters</Text>
         }
+        <View style={{height: 10}} />
         <PrimaryButton
             text={'Log In'}
             allowed={phoneNumber}
             handlePress={handlePress}
+            useIndicator={isLoading}
         />
         <SecondaryButton
             text={'Login using Email instead'}
@@ -82,12 +103,6 @@ const LoginPhoneScreen = () => {
         />
         <View style={{flexDirection: 'row', marginBottom: 15}}>
             <Text style={{color: '#a2a2a2', fontSize: 12}} >Forgotten your login details?&nbsp;</Text>
-            <AlertModal
-                title={'Unsupported Feature'}
-                message={'Sorry, currently this feature is not supported.'}
-                modalVisible={isModalVisible}
-                requestClose={() => setIsModalVisible(false)}
-            />
             <TouchableOpacity
                 activeOpacity={0.65}
                 // onPress={() => alert('Currently, this feature is NOT supported.')}

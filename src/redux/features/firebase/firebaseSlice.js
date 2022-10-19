@@ -39,6 +39,18 @@ export const signUpPhoneNumberVerify = createAsyncThunk('firebase/signUpPhoneNum
     }
 })
 
+export const logInPhoneNumberVerify = createAsyncThunk('firebase/logInśPhoneNumberVerify', async({verificationId, otp}) => {
+    try
+    {
+        const auth = firebaseAuth.getAuth()
+        const userCredential = PhoneAuthProvider.credential(verificationId, otp)
+        const response = await signInWithCredential(auth, userCredential)
+        return response
+    } catch (err) {
+        return {errorCode: err.code}
+    }
+})
+
 export const logInEmail = createAsyncThunk('firebase/logInEmail', async({email, password}) => {
     try
     {
@@ -132,7 +144,10 @@ const firebaseSlice = createSlice({
                         case 'auth/user-not-found':
                             state.error.errorBody = 'Email address is not registered with us. Please try again with a different email address.'
                             break ;
-                    }
+                        case 'auth/user-disabled':
+                            state.error.errorBody = 'Your account is temporarily disabled. Please try again after some time or contact support.'
+                            break ;
+                        }
                 }
                 if(action.payload.user)
                 {
@@ -140,7 +155,35 @@ const firebaseSlice = createSlice({
                     state.user = action.payload.user
                 }
             })
-
+            .addCase(logInPhoneNumberVerify.fulfilled, (state, action) => {
+                console.log(' --> logInPhoneNumberVerify fulfilled.');
+                console.log(action.payload);
+                if(action.payload.errorCode)
+                {
+                    switch(action.payload.errorCode)
+                    {
+                        case 'auth/invalid-verification-code':
+                            state.error.errorBody = 'Incorrect verification code entered.'
+                            break
+                        case 'auth/code-expired':
+                            state.error.errorBody = 'Verification Code expired. Request a new one.'
+                            break
+                    }
+                }
+                if(action.payload._tokenResponse)
+                {
+                    console.log(action.payload._tokenResponse);
+                    switch(action.payload._tokenResponse.isNewUser)
+                    {
+                        case true:
+                            state.error.errorBody = 'This phone number is not registered, but is now signed up with our instagram clone servers. Please login again to continue.'
+                            break ;
+                        case false:
+                            state.user = action.payload.user
+                            break
+                    }
+                }
+            })
     }
 })
 
