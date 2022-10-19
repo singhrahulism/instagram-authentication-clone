@@ -6,10 +6,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { CHANGE_LOADING } from '../../redux/features/loadingSlice'
 
 import PrimaryButton from '../../components/buttons/PrimaryButton'
-import UserPhoneEmailField from '../../components/fields/Login/UserPhoneEmailField'
 
 import NewSignUp from '../../components/footers/auth/NewSignUp'
-import AlertModal from '../../components/modals/AlertModal'
 
 import LoginWithFacebook from '../../components/loginMethods/LoginWithFacebook'
 import SecondaryButton from '../../components/buttons/SecondaryButton'
@@ -68,12 +66,6 @@ const LoginPhoneScreen = () => {
     }, [verificationId])
 
     return <View style={styles.container}>
-        <AlertModal
-            title={'Error'}
-            message={errorMessage}
-            modalVisible={isModalVisible}
-            requestClose={() => setIsModalVisible(false)}
-        />
         <PhoneNumberVerify phoneNumber={phoneNumber} isPressed={isPressed} />
         <Image
             source={require('../../../assets/logo/mainLogo.png')}

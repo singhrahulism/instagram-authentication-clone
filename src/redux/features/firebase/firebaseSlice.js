@@ -11,7 +11,10 @@ const initialState = {
     phoneAuth: {
         verificationId: ''
     },
-    user: {}
+    user: {},
+    facebook: {
+        accessToken: ''
+    }
 }
 
 export const signUpEmail = createAsyncThunk('firebase/signUpEmail', async({email, password, capRef}) => {
