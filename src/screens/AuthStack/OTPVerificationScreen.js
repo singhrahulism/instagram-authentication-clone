@@ -65,24 +65,18 @@ const OTPVerificationScreen = ({route}) => {
         }
     }, [vid])
 
-    // useEffect(() => {
-    //     console.log({otp});
-    // }, [otp])
-
-    // useEffect(() => {
-    //     if(errorMessage)
-    //     {
-    //         setIsModalVisible(true)
-    //         console.log(errorMessage);
-    //     }
-    // }, [errorMessage])
-
     useEffect(() => {
-    if(isModalVisible === false)
-    {
+        if(errorMessage)
+        {
+            setIsModalVisible(true)
+            console.log(errorMessage);
+        }
+    }, [errorMessage])
+
+    const handleModalCLose = () => {
         dispatch(updateErrorMessage(''))
+        setIsModalVisible(false)
     }
-    }, [isModalVisible])
 
     return <View style={styles.container}>
         <Text style={styles.textContainer}>Enter the confirmation code that we sent to +91 {phoneNumber}</Text>
@@ -90,7 +84,7 @@ const OTPVerificationScreen = ({route}) => {
             title={'Error'}
             message={errorMessage}
             modalVisible={isModalVisible}
-            requestClose={() => setIsModalVisible(false)}
+            requestClose={handleModalCLose}
         />
         <GeneralField
             placeHolderText={'123456'}
