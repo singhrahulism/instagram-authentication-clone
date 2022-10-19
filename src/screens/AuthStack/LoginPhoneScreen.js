@@ -84,7 +84,7 @@ const LoginPhoneScreen = () => {
         }
         <View style={{height: 10}} />
         <PrimaryButton
-            text={'Log In'}
+            text={'Get OTP'}
             allowed={phoneNumber}
             handlePress={handlePress}
             useIndicator={isLoading}
